@@ -1,294 +1,708 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@color/bg_base"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+    <!-- ══════════════════════════════════════
+         TOP APP BAR
+    ══════════════════════════════════════ -->
+
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        app:elevation="0dp">
+        android:background="@color/bg_base"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:paddingHorizontal="8dp"
             app:title="@string/title_main"
-            app:titleCentered="true"
-            app:titleTextAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-            app:titleTextColor="@color/primary" />
+            app:titleCentered="false"
+            app:titleTextAppearance="@style/TextAppearance.FTPServer.Title"
+            app:titleTextColor="@color/text_primary"
+            app:navigationIcon="@android:drawable/ic_menu_share"
+            app:navigationIconTint="@color/accent_blue"
+            app:menu="@menu/menu_main" />
+
+        <!-- Thin accent line under toolbar -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border_subtle" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
+
+    <!-- ══════════════════════════════════════
+         SCROLLABLE CONTENT
+    ══════════════════════════════════════ -->
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
 
-            <!-- Status Card -->
+
+            <!-- ─── STATUS HERO CARD ─── -->
+
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="24dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="@color/border_subtle"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="20dp">
 
-                    <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                    <!-- Status pill badge -->
+                    <LinearLayout
+                        android:id="@+id/layoutStatusPill"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_status_pill"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
                         android:layout_marginBottom="16dp">
 
                         <View
                             android:id="@+id/viewStatusIndicator"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_width="7dp"
+                            android:layout_height="7dp"
                             android:background="@drawable/status_indicator_background"
-                            android:backgroundTint="@color/error" />
+                            android:backgroundTint="@color/status_offline"
+                            android:layout_marginEnd="7dp" />
 
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_share"
-                            app:tint="@color/white" />
-                    </FrameLayout>
+                        <TextView
+                            android:id="@+id/textViewStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/status_offline"
+                            android:textAppearance="@style/TextAppearance.FTPServer.Label"
+                            android:textColor="@color/status_offline"
+                            android:textSize="11sp" />
 
-                    <TextView
-                        android:id="@+id/textViewStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status_stopped"
-                        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                        android:textStyle="bold" />
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/textViewIp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="IP: --"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:textColor="#757575" />
-
+                    <!-- FTP Address (monospace, large) -->
                     <TextView
                         android:id="@+id/textViewAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="ftp://--:2121"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColor="@color/primary"
-                        android:textStyle="bold" />
+                        android:text="@string/hint_ftp_placeholder"
+                        android:textAppearance="@style/TextAppearance.FTPServer.MonoLarge"
+                        android:textSize="20sp"
+                        android:layout_marginBottom="4dp" />
 
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        style="?android:attr/progressBarStyleSmall"
+                    <!-- IP Line -->
+                    <TextView
+                        android:id="@+id/textViewIp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:text="IP: ––.––.––.––"
+                        android:textAppearance="@style/TextAppearance.FTPServer.Mono"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- Live stats row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3">
+
+                        <!-- Clients -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_stat_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp"
+                            android:paddingHorizontal="8dp">
+
+                            <TextView
+                                android:id="@+id/textViewClients"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Mono"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_clients"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Label"
+                                android:textSize="9sp"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                        <!-- Uptime -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginHorizontal="3dp"
+                            android:background="@drawable/bg_stat_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp"
+                            android:paddingHorizontal="8dp">
+
+                            <TextView
+                                android:id="@+id/textViewUptime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="––"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Mono"
+                                android:textColor="@color/text_primary"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_uptime"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Label"
+                                android:textSize="9sp"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                        <!-- TX Rate -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_stat_box"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingVertical="10dp"
+                            android:paddingHorizontal="8dp">
+
+                            <TextView
+                                android:id="@+id/textViewTxRate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 B/s"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Mono"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_tx_rate"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Label"
+                                android:textSize="9sp"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Progress bar (shown only while toggling) -->
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="16dp"
+                        android:indeterminate="true"
+                        android:progressTint="@color/accent_blue"
                         android:visibility="gone" />
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Configuration Card -->
+
+            <!-- ─── SERVER SETTINGS CARD ─── -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="24dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#E0E0E0"
+                app:strokeColor="@color/border_subtle"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="20dp">
+
+                    <!-- Section header -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_server_settings"
+                        android:textAppearance="@style/TextAppearance.FTPServer.TitleSmall"
+                        android:textSize="11sp"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Anonymous Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_anonymous"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Body"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_anonymous_desc"
+                                android:textAppearance="@style/TextAppearance.FTPServer.BodySmall"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchAnonymous"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_subtle" />
+
+                    <!-- Secure FTPS Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_secure"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Body"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_secure_desc"
+                                android:textAppearance="@style/TextAppearance.FTPServer.BodySmall"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchSecure"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_subtle" />
+
+                    <!-- Passive Mode Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_passive"
+                                android:textAppearance="@style/TextAppearance.FTPServer.Body"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/setting_passive_desc"
+                                android:textAppearance="@style/TextAppearance.FTPServer.BodySmall"
+                                android:layout_marginTop="2dp" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchPassive"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- ─── CREDENTIALS CARD ─── -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCredentials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/bg_surface"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:text="Server Settings"
-                        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                        android:textStyle="bold" />
+                        android:text="@string/label_credentials"
+                        android:textAppearance="@style/TextAppearance.FTPServer.TitleSmall"
+                        android:textSize="11sp"
+                        android:layout_marginBottom="16dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchAnonymous"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Anonymous Access"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchSecure"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Secure Connection (FTPS)"
-                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-
+                    <!-- Username -->
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:id="@+id/layoutUsername"
+                        style="@style/Widget.FTPServer.TextInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
-                        android:hint="Username">
+                        android:hint="@string/hint_username"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        app:startIconTint="@color/text_muted">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editTextUsername"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPersonName" />
+                            android:fontFamily="monospace"
+                            android:inputType="textPersonName"
+                            android:text="@string/default_username"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Password -->
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:id="@+id/layoutPassword"
+                        style="@style/Widget.FTPServer.TextInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
-                        android:hint="Password"
-                        app:passwordToggleEnabled="true">
+                        android:layout_marginTop="10dp"
+                        android:hint="@string/hint_password"
+                        app:passwordToggleEnabled="true"
+                        app:startIconDrawable="@android:drawable/ic_lock_lock"
+                        app:startIconTint="@color/text_muted"
+                        app:endIconTint="@color/text_muted">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editTextPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPassword" />
+                            android:fontFamily="monospace"
+                            android:inputType="textPassword"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Port -->
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:id="@+id/layoutPort"
+                        style="@style/Widget.FTPServer.TextInput"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
-                        android:hint="Port">
+                        android:layout_marginTop="10dp"
+                        android:hint="@string/hint_port"
+                        app:startIconDrawable="@android:drawable/ic_menu_sort_by_size"
+                        app:startIconTint="@color/text_muted"
+                        app:helperText="Range: 1024 – 65535"
+                        app:helperTextTextColor="@color/text_muted">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editTextPort"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number" />
+                            android:fontFamily="monospace"
+                            android:inputType="number"
+                            android:text="@string/default_port"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
                     </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Actions -->
+
+            <!-- ─── ACTION BUTTONS ─── -->
+
+            <!-- Start (primary, full width) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonStart"
+                style="@style/Widget.FTPServer.Button"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/action_start"
+                app:icon="@android:drawable/ic_media_play"
+                app:iconGravity="textStart"
+                app:iconSize="18dp" />
+
+            <!-- Stop (danger, full width) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonStop"
+                style="@style/Widget.FTPServer.Button.Danger"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/action_stop"
+                android:visibility="gone"
+                app:icon="@android:drawable/ic_media_pause"
+                app:iconGravity="textStart"
+                app:iconSize="18dp" />
+
+            <!-- Secondary row: Copy + Logs -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="20dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonStart"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:text="Start Server"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_media_play" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonStop"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Stop Server"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    app:cornerRadius="16dp"
-                    app:icon="@android:drawable/ic_media_pause" />
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonCopy"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Copy FTP Address"
-                    app:icon="@android:drawable/ic_menu_set_as" />
+                    style="@style/Widget.FTPServer.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/action_copy_address"
+                    android:textSize="13sp"
+                    app:icon="@android:drawable/ic_menu_set_as"
+                    app:iconGravity="textStart"
+                    app:iconSize="16dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonToggleLogs"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Show Connection Logs"
-                    app:icon="@android:drawable/ic_menu_info_details" />
+                    style="@style/Widget.FTPServer.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/action_show_logs"
+                    android:textSize="13sp"
+                    app:icon="@android:drawable/ic_menu_info_details"
+                    app:iconGravity="textStart"
+                    app:iconSize="16dp" />
+
             </LinearLayout>
 
-            <!-- Logs Card -->
+
+            <!-- ─── TERMINAL / LOGS CARD ─── -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLogs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="#1E1E1E"
+                app:cardBackgroundColor="@color/terminal_bg"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/border_subtle"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Logs"
-                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="#BBBBBB" />
-
-                    <TextView
-                        android:id="@+id/textViewLog"
+                    <!-- Terminal title bar -->
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:fontFamily="monospace"
-                        android:text="No logs yet..."
-                        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                        android:textColor="#00FF00" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="10dp"
+                        android:background="@color/bg_surface">
+
+                        <!-- Traffic lights -->
+                        <View
+                            android:layout_width="9dp"
+                            android:layout_height="9dp"
+                            android:background="@drawable/status_indicator_background"
+                            android:backgroundTint="#FFEF4444"
+                            android:layout_marginEnd="6dp" />
+
+                        <View
+                            android:layout_width="9dp"
+                            android:layout_height="9dp"
+                            android:background="@drawable/status_indicator_background"
+                            android:backgroundTint="#FFF59E0B"
+                            android:layout_marginEnd="6dp" />
+
+                        <View
+                            android:layout_width="9dp"
+                            android:layout_height="9dp"
+                            android:background="@drawable/status_indicator_background"
+                            android:backgroundTint="#FF22C55E"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="server.log"
+                            android:textAppearance="@style/TextAppearance.FTPServer.Mono"
+                            android:textColor="@color/text_muted"
+                            android:textSize="11sp" />
+
+                        <!-- Clear logs button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonClearLogs"
+                            style="@style/Widget.FTPServer.Button.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:minWidth="0dp"
+                            android:paddingHorizontal="8dp"
+                            android:text="@string/action_clear_logs"
+                            android:textColor="@color/text_muted"
+                            android:textSize="11sp" />
+
+                    </LinearLayout>
+
+                    <!-- Divider -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_subtle" />
+
+                    <!-- Log output -->
+                    <ScrollView
+                        android:id="@+id/scrollLogs"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scrollbars="vertical"
+                        android:scrollbarThumbVertical="@color/border_medium"
+                        android:fadeScrollbars="false">
+
+                        <TextView
+                            android:id="@+id/textViewLog"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="14dp"
+                            android:fontFamily="monospace"
+                            android:lineSpacingMultiplier="1.6"
+                            android:text="@string/hint_no_logs"
+                            android:textColor="@color/terminal_muted"
+                            android:textSize="11sp" />
+
+                    </ScrollView>
+
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+
+    <!-- ══════════════════════════════════════
+         BOTTOM NAVIGATION BAR
+    ══════════════════════════════════════ -->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/bg_surface"
+        app:itemIconTint="@color/bottom_nav_icon_color"
+        app:itemTextColor="@color/bottom_nav_icon_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom_nav"
+        app:elevation="0dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

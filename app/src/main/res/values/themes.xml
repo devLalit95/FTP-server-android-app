@@ -1,16 +1,219 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.FTPServer" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorSecondary">@color/secondary</item>
-        <item name="android:windowBackground">@color/background</item>
-        <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/on_surface</item>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.Theme.FTPServer" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Color System -->
+        <item name="colorPrimary">@color/accent_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/accent_purple</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="colorTertiary">@color/status_online</item>
+        <item name="colorOnTertiary">@color/white</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+
+        <!-- Surfaces -->
+        <item name="android:colorBackground">@color/bg_base</item>
+        <item name="colorSurface">@color/bg_surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/bg_surface2</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/border_medium</item>
+        <item name="colorOutlineVariant">@color/border_subtle</item>
+
+        <!-- Window -->
+        <item name="android:windowBackground">@color/bg_base</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/bg_base</item>
+        <item name="android:navigationBarColor">@color/bg_surface</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <!-- Typography -->
+        <item name="android:fontFamily">sans-serif</item>
+
+        <!-- Shape -->
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.FTPServer.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.FTPServer.Large</item>
+
+        <!-- Component overrides -->
+        <item name="materialCardViewStyle">@style/Widget.FTPServer.Card</item>
+        <item name="extendedFloatingActionButtonStyle">@style/Widget.FTPServer.FAB</item>
+        <item name="textInputStyle">@style/Widget.FTPServer.TextInput</item>
+        <item name="materialSwitchStyle">@style/Widget.FTPServer.Switch</item>
+        <item name="materialButtonStyle">@style/Widget.FTPServer.Button</item>
     </style>
 
     <style name="Theme.FTPServer" parent="Base.Theme.FTPServer" />
 
-    <style name="ShapeAppearance.FTPServer.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+    <!-- ─── Shapes ─── -->
+
+    <style name="ShapeAppearance.FTPServer.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearance.FTPServer.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">14dp</item>
+    </style>
+
+    <style name="ShapeAppearance.FTPServer.Large" parent="ShapeAppearance.Material3.LargeComponent">
         <item name="cornerSize">20dp</item>
     </style>
+
+    <style name="ShapeAppearance.FTPServer.ExtraLarge" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <!-- ─── Card ─── -->
+
+    <style name="Widget.FTPServer.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">@color/bg_surface</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/border_subtle</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <!-- ─── Buttons ─── -->
+
+    <style name="Widget.FTPServer.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.FTPServer.Button</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="Widget.FTPServer.Button.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.FTPServer.Button</item>
+    </style>
+
+    <style name="Widget.FTPServer.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="strokeColor">@color/border_medium</item>
+        <item name="android:textAppearance">@style/TextAppearance.FTPServer.Button</item>
+    </style>
+
+    <style name="Widget.FTPServer.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.FTPServer.Button.Small</item>
+    </style>
+
+    <style name="Widget.FTPServer.Button.Danger" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">14dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="strokeColor">@color/status_offline_border</item>
+        <item name="android:textColor">@color/status_offline</item>
+        <item name="backgroundTint">@color/status_offline_dim</item>
+        <item name="android:textAppearance">@style/TextAppearance.FTPServer.Button</item>
+    </style>
+
+    <!-- ─── TextInput ─── -->
+
+    <style name="Widget.FTPServer.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/bg_surface2</item>
+        <item name="boxStrokeColor">@color/border_medium</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+        <item name="hintTextColor">@color/text_muted</item>
+        <item name="android:textColorHint">@color/text_muted</item>
+        <item name="startIconTint">@color/text_muted</item>
+        <item name="endIconTint">@color/text_muted</item>
+    </style>
+
+    <!-- ─── Switch ─── -->
+
+    <style name="Widget.FTPServer.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackTint">@color/switch_track_color</item>
+    </style>
+
+    <!-- ─── FAB ─── -->
+
+    <style name="Widget.FTPServer.FAB" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="shapeAppearance">@style/ShapeAppearance.FTPServer.Large</item>
+    </style>
+
+    <!-- ─── Typography ─── -->
+
+    <style name="TextAppearance.FTPServer.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontWeight">700</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontWeight">600</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontWeight">600</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Body" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Mono" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.MonoLarge" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="fontWeight">600</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.MonoSmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">@color/terminal_green</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Button" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontWeight">600</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Button.Small" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontWeight">500</item>
+    </style>
+
+    <style name="TextAppearance.FTPServer.Label" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/text_muted</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
 </resources>

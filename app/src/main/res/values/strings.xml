@@ -1,32 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FTP Server</string>
     <string name="title_main">FTP Server</string>
-    <string name="status_running">Running</string>
-    <string name="status_stopped">Stopped</string>
+
+    <!-- Status -->
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_starting">Starting…</string>
+    <string name="status_stopping">Stopping…</string>
+
+    <!-- Labels -->
+    <string name="label_ip">IP</string>
     <string name="label_device_ip">Device IP</string>
-    <string name="label_port">Port</string>
-    <string name="label_username">Username</string>
-    <string name="label_password">Password</string>
-    <string name="label_mode">Connection Mode</string>
+    <string name="label_ftp_address">FTP Address</string>
+    <string name="label_clients">Clients</string>
+    <string name="label_uptime">Uptime</string>
+    <string name="label_tx_rate">TX Rate</string>
+    <string name="label_server_settings">Server Settings</string>
+    <string name="label_credentials">Credentials</string>
+    <string name="label_connection_logs">Connection Logs</string>
+
+    <!-- Settings -->
+    <string name="setting_anonymous">Anonymous Access</string>
+    <string name="setting_anonymous_desc">Allow login without credentials</string>
+    <string name="setting_secure">Secure Connection (FTPS)</string>
+    <string name="setting_secure_desc">Encrypt transfers with TLS</string>
+    <string name="setting_passive">Passive Mode (PASV)</string>
+    <string name="setting_passive_desc">Use passive data connections</string>
+
+    <!-- Hints -->
+    <string name="hint_username">username</string>
+    <string name="hint_password">password</string>
+    <string name="hint_port">2121</string>
+    <string name="hint_ip_placeholder">––.––.––.––</string>
+    <string name="hint_ftp_placeholder">ftp://–––:2121</string>
+    <string name="hint_no_logs">No logs yet…</string>
+
+    <!-- Actions -->
     <string name="action_start">Start Server</string>
     <string name="action_stop">Stop Server</string>
-    <string name="action_copy_address">Copy FTP Address</string>
-    <string name="hint_username">lalit</string>
-    <string name="hint_password">lalit</string>
-    <string name="hint_port">2121</string>
-    <string name="mode_anonymous">Anonymous Login</string>
-    <string name="mode_secure">Secure Login</string>
+    <string name="action_copy_address">Copy Address</string>
+    <string name="action_show_logs">Show Logs</string>
+    <string name="action_hide_logs">Hide Logs</string>
+    <string name="action_clear_logs">Clear</string>
+    <string name="action_share">Share</string>
+
+    <!-- Errors -->
+    <string name="error_port_invalid">Port must be between 1024 and 65535</string>
+    <string name="error_no_wifi">Connect to Wi-Fi before starting the server</string>
+    <string name="error_start_failed">Server failed to start. Check logs for details.</string>
+    <string name="error_permission_denied">Storage permission is required</string>
+    <string name="error_username_empty">Username cannot be empty</string>
+    <string name="error_password_empty">Password cannot be empty</string>
+
+    <!-- Toasts / Snackbars -->
+    <string name="toast_copied">FTP address copied to clipboard</string>
+    <string name="toast_copy_success">FTP address copied to clipboard</string>
+    <string name="toast_server_started">Server started successfully</string>
+    <string name="toast_server_stopped">Server stopped</string>
+    <string name="toast_logs_cleared">Logs cleared</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">FTP Server Status</string>
+    <string name="notification_channel_description">Shows when the FTP server is running in the background</string>
+    <string name="notification_title">FTP Server Running</string>
+    <string name="notification_content_template">%1$s on port %2$d</string>
+    <string name="notification_action_stop">Stop</string>
+
+    <!-- Permissions -->
+    <string name="permission_storage_title">Storage Access</string>
+    <string name="permission_storage_message">Storage permission is needed to serve files over FTP</string>
+    <string name="permission_notification_title">Background Notifications</string>
+    <string name="permission_notification_message">Notification permission is needed to show server status</string>
+
+    <!-- Nav tabs -->
+    <string name="nav_server">Server</string>
+    <string name="nav_files">Files</string>
+    <string name="nav_users">Users</string>
+    <string name="nav_security">Security</string>
+
+    <!-- Misc -->
     <string name="ftp_url_template">ftp://%1$s:%2$d</string>
-    <string name="default_home_label">Shared files will be served from the app FTP root folder.</string>
-    <string name="permission_storage_required">Storage permission is required to serve external files.</string>
-    <string name="permission_notification_required">Notification permission is required for background server status.</string>
-    <string name="error_port_invalid">Enter a valid port between 1024 and 65535.</string>
-    <string name="error_no_wifi">Connect to Wi-Fi before starting the server.</string>
-    <string name="error_start_failed">Server failed to start.</string>
-    <string name="error_permission_denied">Permissions required to run FTP server.</string>
-    <string name="toast_copy_success">FTP address copied to clipboard.</string>
-    <string name="toast_server_started">FTP server started.</string>
-    <string name="toast_server_stopped">FTP server stopped.</string>
-    <string name="notification_channel_name">FTP Server</string>
-    <string name="notification_channel_description">Notifications for FTP server status.</string>
+    <string name="ip_template">IP: %1$s</string>
+    <string name="uptime_default">––</string>
+    <string name="rate_default">0 B/s</string>
+    <string name="clients_default">0</string>
+    <string name="default_username">lalit</string>
+    <string name="default_port">2121</string>
+    <string name="info_home_dir">Files are served from the app\'s designated FTP root folder.</string>
 </resources>
