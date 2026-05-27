@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">FTP Server</string>
+    <string name="title_main">FTP Server</string>
+    <string name="status_running">Running</string>
+    <string name="status_stopped">Stopped</string>
+    <string name="label_device_ip">Device IP</string>
+    <string name="label_port">Port</string>
+    <string name="label_username">Username</string>
+    <string name="label_password">Password</string>
+    <string name="label_mode">Connection Mode</string>
+    <string name="action_start">Start Server</string>
+    <string name="action_stop">Stop Server</string>
+    <string name="action_copy_address">Copy FTP Address</string>
+    <string name="hint_username">lalit</string>
+    <string name="hint_password">lalit</string>
+    <string name="hint_port">2121</string>
+    <string name="mode_anonymous">Anonymous Login</string>
+    <string name="mode_secure">Secure Login</string>
+    <string name="ftp_url_template">ftp://%1$s:%2$d</string>
+    <string name="default_home_label">Shared files will be served from the app FTP root folder.</string>
+    <string name="permission_storage_required">Storage permission is required to serve external files.</string>
+    <string name="permission_notification_required">Notification permission is required for background server status.</string>
+    <string name="error_port_invalid">Enter a valid port between 1024 and 65535.</string>
+    <string name="error_no_wifi">Connect to Wi-Fi before starting the server.</string>
+    <string name="error_start_failed">Server failed to start.</string>
+    <string name="error_permission_denied">Permissions required to run FTP server.</string>
+    <string name="toast_copy_success">FTP address copied to clipboard.</string>
+    <string name="toast_server_started">FTP server started.</string>
+    <string name="toast_server_stopped">FTP server stopped.</string>
+    <string name="notification_channel_name">FTP Server</string>
+    <string name="notification_channel_description">Notifications for FTP server status.</string>
+</resources>

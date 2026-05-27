@@ -1,0 +1,30 @@
+[versions]
+agp = "9.2.1"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.6.1"
+material = "1.10.0"
+activityKtx = "1.8.0"
+constraintlayout = "2.1.4"
+
+[libraries]
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version = "1.2.0" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version = "1.10.1" }
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version = "2.6.2" }
+lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version = "2.6.2" }
+ftpserver-core = { group = "org.apache.ftpserver", name = "ftpserver-core", version = "1.2.0" }
+mina-core = { group = "org.apache.mina", name = "mina-core", version = "2.1.6" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version = "1.7.36" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version = "1.7.36" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+
