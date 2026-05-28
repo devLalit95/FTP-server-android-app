@@ -8,6 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
     private ServerPreferences preferences;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private BroadcastReceiver hotspotReceiver;
+    private String lastKnownIp = null;
+    private long lastIpUpdate = 0;
+    private static final long IP_UPDATE_THROTTLE_MS = 2000;
 
     private final BroadcastReceiver serviceReceiver = new BroadcastReceiver() {
         @Override
@@ -49,15 +58,30 @@ public class MainActivity extends AppCompatActivity {
                     boolean running = intent.getBooleanExtra(FtpServerService.EXTRA_SERVER_RUNNING, false);
                     int port = intent.getIntExtra(FtpServerService.EXTRA_SERVER_PORT, 0);
                     String address = intent.getStringExtra(FtpServerService.EXTRA_SERVER_ADDRESS);
+                    
+                    Boolean wasRunning = viewModel.getServerRunning().getValue();
                     updateStatus(running, address, port);
-                    String toastMessage = running ? getString(R.string.toast_server_started) : getString(R.string.toast_server_stopped);
-                    showToast(toastMessage);
+                    
+                    // Only show toast if the status has actually changed
+                    if (wasRunning == null || wasRunning != running) {
+                        String toastMessage = running ? getString(R.string.toast_server_started) : getString(R.string.toast_server_stopped);
+                        showToast(toastMessage);
+                    }
                     break;
                 case FtpServerService.ACTION_LOG_UPDATE:
                     String message = intent.getStringExtra(FtpServerService.EXTRA_MESSAGE);
                     if (!TextUtils.isEmpty(message)) {
                         viewModel.appendLog(message);
                     }
+                    break;
+                case FtpServerService.ACTION_CLIENTS_UPDATE:
+                    int count = intent.getIntExtra(FtpServerService.EXTRA_CLIENTS, 0);
+                    viewModel.updateClients(count);
+                    break;
+                case FtpServerService.ACTION_STATS_UPDATE:
+                    int clients = intent.getIntExtra(FtpServerService.EXTRA_CLIENTS, 0);
+                    long totalBytes = intent.getLongExtra(FtpServerService.EXTRA_TOTAL_BYTES, 0);
+                    viewModel.updateStats(clients, totalBytes);
                     break;
             }
         }
@@ -78,6 +102,14 @@ public class MainActivity extends AppCompatActivity {
 
         preferences = new ServerPreferences(this);
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        
+        // Sync state if server is already running in background
+        FtpServerManager manager = FtpServerManager.getInstance();
+        if (manager.isRunning()) {
+            viewModel.syncWithServerManager();
+            updateStatus(true, manager.getAddress(), manager.getPort());
+        }
+
         setupObservers();
         loadPreferences();
         bindActions();
@@ -95,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(FtpServerService.ACTION_STATUS_UPDATE);
         filter.addAction(FtpServerService.ACTION_LOG_UPDATE);
+        filter.addAction(FtpServerService.ACTION_CLIENTS_UPDATE);
+        filter.addAction(FtpServerService.ACTION_STATS_UPDATE);
         ContextCompat.registerReceiver(this, serviceReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
@@ -103,6 +137,9 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getStatusText().observe(this, binding.textViewStatus::setText);
         viewModel.getServerAddress().observe(this, binding.textViewAddress::setText);
         viewModel.getIpAddress().observe(this, address -> binding.textViewIp.setText(getString(R.string.ip_template, address)));
+        viewModel.getClientsCount().observe(this, count -> binding.textViewClients.setText(String.valueOf(count)));
+        viewModel.getUptime().observe(this, uptime -> binding.textViewUptime.setText(uptime));
+        viewModel.getTransferRate().observe(this, rate -> binding.textViewTxRate.setText(rate));
         viewModel.getLogText().observe(this, text -> {
             binding.textViewLog.setText(text);
             binding.main.post(() -> {
@@ -140,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 showSnackbar(getString(R.string.error_port_invalid));
                 return;
             }
-            if (!NetworkUtils.isWifiConnected(this)) {
+            if (!NetworkUtils.isNetworkAvailableForFtp(this)) {
                 showSnackbar(getString(R.string.error_no_wifi));
                 updateLocalIp();
                 return;
@@ -207,12 +244,32 @@ public class MainActivity extends AppCompatActivity {
         viewModel.setServerAddress(formattedAddress);
     }
 
-    private void updateLocalIp() {
-        final String localIp = NetworkUtils.getLocalIpAddress();
-        final String currentAddress = TextUtils.isEmpty(localIp) ? "--" : localIp;
+    private void checkAndUpdateIp() {
+        long now = System.currentTimeMillis();
+        // Hard throttle: don't even scan for IP more than once every 2 seconds
+        if (now - lastIpUpdate < 2000) return;
+
+        String currentIp = NetworkUtils.getLocalIpAddress();
+        
+        if (currentIp != null && (!currentIp.equals(lastKnownIp) || (now - lastIpUpdate) > IP_UPDATE_THROTTLE_MS)) {
+            lastKnownIp = currentIp;
+            lastIpUpdate = now;
+            updateLocalIp(currentIp);
+        }
+    }
+
+    private void updateLocalIp(String currentAddress) {
         viewModel.setIpAddress(currentAddress);
-        int port = preferences.getPort();
-        viewModel.setServerAddress(getString(R.string.ftp_url_template, currentAddress, port));
+        FtpServerManager manager = FtpServerManager.getInstance();
+        int port = manager.isRunning() ? manager.getPort() : preferences.getPort();
+        String displayAddress = manager.isRunning() ? manager.getAddress() : currentAddress;
+        if (displayAddress == null) displayAddress = currentAddress;
+        
+        viewModel.setServerAddress(getString(R.string.ftp_url_template, displayAddress, port));
+    }
+
+    private void updateLocalIp() {
+        checkAndUpdateIp();
     }
 
     private boolean hasRequiredPermissions() {
@@ -290,6 +347,62 @@ public class MainActivity extends AppCompatActivity {
     private void setupNavigation() {
         // Initial fragment
         handleNavigation(R.id.nav_server);
+        registerNetworkCallback();
+    }
+
+    private void registerNetworkCallback() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return;
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(@NonNull Network network) {
+                runOnUiThread(() -> {
+                    checkAndUpdateIp();
+                    viewModel.appendLog("Network available: " + network);
+                });
+            }
+
+            @Override
+            public void onLost(@NonNull Network network) {
+                runOnUiThread(() -> {
+                    checkAndUpdateIp();
+                    viewModel.appendLog("Network lost: " + network);
+                });
+            }
+
+            @Override
+            public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+                runOnUiThread(() -> checkAndUpdateIp());
+            }
+
+            @Override
+            public void onLinkPropertiesChanged(@NonNull Network network, @NonNull android.net.LinkProperties linkProperties) {
+                runOnUiThread(() -> checkAndUpdateIp());
+            }
+        };
+
+        // Use a broader request to catch more network changes, including those without internet
+        NetworkRequest request = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                .build();
+        cm.registerNetworkCallback(request, networkCallback);
+        
+        // Also listen for Hotspot specifically if possible via broadcasts for legacy support
+        hotspotReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int state = intent.getIntExtra("wifi_state", 0);
+                if (state == 13) { // AP_STATE_ENABLED
+                    viewModel.appendLog("Hotspot enabled");
+                } else if (state == 11) { // AP_STATE_DISABLED
+                    viewModel.appendLog("Hotspot disabled");
+                }
+                checkAndUpdateIp();
+            }
+        };
+        IntentFilter filter = new IntentFilter("android.net.wifi.WIFI_AP_STATE_CHANGED");
+        registerReceiver(hotspotReceiver, filter);
     }
 
     private void setupBackNavigation() {
@@ -356,5 +469,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(serviceReceiver);
+        if (hotspotReceiver != null) {
+            unregisterReceiver(hotspotReceiver);
+        }
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) cm.unregisterNetworkCallback(networkCallback);
+        }
     }
 }

@@ -8,6 +8,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import androidx.annotation.NonNull;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
@@ -23,10 +28,14 @@ public class FtpServerService extends Service {
     public static final String ACTION_STOP_SERVER = "com.example.ftpserver.action.STOP_SERVER";
     public static final String ACTION_STATUS_UPDATE = "com.example.ftpserver.action.STATUS_UPDATE";
     public static final String ACTION_LOG_UPDATE = "com.example.ftpserver.action.LOG_UPDATE";
+    public static final String ACTION_STATS_UPDATE = "com.example.ftpserver.action.STATS_UPDATE";
+    public static final String ACTION_CLIENTS_UPDATE = "com.example.ftpserver.action.CLIENTS_UPDATE";
     public static final String EXTRA_SERVER_RUNNING = "extra_server_running";
     public static final String EXTRA_SERVER_PORT = "extra_server_port";
     public static final String EXTRA_SERVER_ADDRESS = "extra_server_address";
     public static final String EXTRA_MESSAGE = "extra_message";
+    public static final String EXTRA_CLIENTS = "extra_clients";
+    public static final String EXTRA_TOTAL_BYTES = "extra_total_bytes";
     public static final String EXTRA_USERNAME = "extra_username";
     public static final String EXTRA_PASSWORD = "extra_password";
     public static final String EXTRA_PORT = "extra_port";
@@ -36,12 +45,69 @@ public class FtpServerService extends Service {
     private static final String CHANNEL_ID = "ftp_server_channel";
     private static final int NOTIFICATION_ID = 3401;
     private FtpServerManager serverManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private String lastKnownIp = null;
+    private long lastNotificationUpdate = 0;
+    private static final long NOTIFICATION_THROTTLE_MS = 3000;
 
     @Override
     public void onCreate() {
         super.onCreate();
         serverManager = FtpServerManager.getInstance();
         createNotificationChannel();
+        registerNetworkMonitor();
+    }
+
+    private void registerNetworkMonitor() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return;
+
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties lp) {
+                // Link properties change often, only update if IP changed or throttled
+                checkAndUpdateNetworkInfo();
+            }
+
+            @Override
+            public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities nc) {
+                // Capabilities like signal strength change constantly, only update if IP changed or throttled
+                checkAndUpdateNetworkInfo();
+            }
+        };
+
+        try {
+            cm.registerDefaultNetworkCallback(networkCallback);
+        } catch (Exception e) {
+            Log.e("FtpServerService", "Failed to register network callback", e);
+        }
+    }
+
+    private synchronized void checkAndUpdateNetworkInfo() {
+        if (!serverManager.isRunning()) return;
+
+        long now = System.currentTimeMillis();
+        // Hard throttle: don't even scan for IP more than once every 2 seconds
+        if (now - lastNotificationUpdate < 2000) return;
+
+        String currentIp = NetworkUtils.getLocalIpAddress();
+        
+        // Only trigger heavy notification/broadcast if IP changed OR it's been a while (throttle)
+        if (currentIp != null && (!currentIp.equals(lastKnownIp) || (now - lastNotificationUpdate) > NOTIFICATION_THROTTLE_MS)) {
+            lastKnownIp = currentIp;
+            lastNotificationUpdate = now;
+            updateServiceNotification(currentIp);
+        }
+    }
+
+    private void updateServiceNotification(String address) {
+        int port = serverManager.getPort();
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            nm.notify(NOTIFICATION_ID, createNotification(address, port));
+        }
+        // Also broadcast the new status to update the UI
+        sendStatus(true, port, address);
     }
 
     @Override
@@ -113,6 +179,21 @@ public class FtpServerService extends Service {
                     public void onLog(String message) {
                         sendLog(message);
                     }
+
+                    @Override
+                    public void onStatsUpdate(int clients, long totalBytes) {
+                        Intent statsIntent = new Intent(ACTION_STATS_UPDATE);
+                        statsIntent.putExtra(EXTRA_CLIENTS, clients);
+                        statsIntent.putExtra(EXTRA_TOTAL_BYTES, totalBytes);
+                        sendBroadcast(statsIntent);
+                    }
+
+                    @Override
+                    public void onClientsUpdate(int activeSessions) {
+                        Intent clientsIntent = new Intent(ACTION_CLIENTS_UPDATE);
+                        clientsIntent.putExtra(EXTRA_CLIENTS, activeSessions);
+                        sendBroadcast(clientsIntent);
+                    }
                 });
     }
 
@@ -137,6 +218,14 @@ public class FtpServerService extends Service {
             @Override
             public void onLog(String message) {
                 sendLog(message);
+            }
+
+            @Override
+            public void onStatsUpdate(int clients, long totalBytes) {
+            }
+
+            @Override
+            public void onClientsUpdate(int activeSessions) {
             }
         });
     }
@@ -212,6 +301,17 @@ public class FtpServerService extends Service {
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (networkCallback != null) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) {
+                cm.unregisterNetworkCallback(networkCallback);
             }
         }
     }

@@ -47,7 +47,7 @@
 
     <!-- Errors -->
     <string name="error_port_invalid">Port must be between 1024 and 65535</string>
-    <string name="error_no_wifi">Connect to Wi-Fi before starting the server</string>
+    <string name="error_no_wifi">Connect to Wi-Fi or enable Hotspot before starting the server</string>
     <string name="error_start_failed">Server failed to start. Check logs for details.</string>
     <string name="error_permission_denied">Storage permission is required</string>
     <string name="error_username_empty">Username cannot be empty</string>
