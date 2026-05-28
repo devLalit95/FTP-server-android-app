@@ -40,6 +40,7 @@ During the development of this app, we solved several critical issues related to
 ## 📥 Installation & Setup
 
 If you are installing this app or building it from source, follow these steps to ensure it works correctly:
+If you want only apk file to use go to app/release/app-release.apk to install the app directly.
 
 ### Prerequisites
 - Android device running **Android 7.0 (API 24)** or higher.
