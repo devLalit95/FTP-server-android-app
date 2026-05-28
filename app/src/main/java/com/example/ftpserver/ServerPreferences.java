@@ -34,7 +34,7 @@ public class ServerPreferences {
     }
 
     public int getPort() {
-        return prefs.getInt(KEY_PORT, 2121);
+        return prefs.getInt(KEY_PORT, 2221);
     }
 
     public void setPort(int port) {

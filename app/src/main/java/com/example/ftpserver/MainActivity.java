@@ -17,12 +17,16 @@ import android.text.TextUtils;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -78,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         bindActions();
         registerReceiver();
         updateLocalIp();
+        setupNavigation();
+        setupBackNavigation();
 
         if (!hasRequiredPermissions()) {
             requestRequiredPermissions();
@@ -92,9 +99,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupObservers() {
+        viewModel.getCurrentNavId().observe(this, this::handleNavigation);
         viewModel.getStatusText().observe(this, binding.textViewStatus::setText);
         viewModel.getServerAddress().observe(this, binding.textViewAddress::setText);
-        viewModel.getIpAddress().observe(this, address -> binding.textViewIp.setText(getString(R.string.label_device_ip) + ": " + address));
+        viewModel.getIpAddress().observe(this, address -> binding.textViewIp.setText(getString(R.string.ip_template, address)));
         viewModel.getLogText().observe(this, text -> {
             binding.textViewLog.setText(text);
             binding.main.post(() -> {
@@ -108,19 +116,26 @@ public class MainActivity extends AppCompatActivity {
         viewModel.getServerRunning().observe(this, running -> {
             int colorRes = running ? R.color.success : R.color.error;
             binding.viewStatusIndicator.setBackgroundTintList(ContextCompat.getColorStateList(this, colorRes));
-            binding.buttonStart.setEnabled(!running);
-            binding.buttonStop.setEnabled(running);
+            
+            // Switch button visibility instead of just enabling/disabling
+            binding.buttonStart.setVisibility(running ? View.GONE : View.VISIBLE);
+            binding.buttonStop.setVisibility(running ? View.VISIBLE : View.GONE);
         });
     }
 
     private void bindActions() {
+        binding.bottomNav.setOnItemSelectedListener(item -> {
+            viewModel.setCurrentNavId(item.getItemId());
+            return true;
+        });
+
         binding.buttonStart.setOnClickListener(v -> {
             if (!hasRequiredPermissions()) {
                 requestRequiredPermissions();
                 return;
             }
 
-            int port = parsePort(binding.editTextPort.getText() != null ? binding.editTextPort.getText().toString() : "");
+            int port = preferences.getPort();
             if (!NetworkUtils.isValidPort(port)) {
                 showSnackbar(getString(R.string.error_port_invalid));
                 return;
@@ -130,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                 updateLocalIp();
                 return;
             }
-            savePreferences();
             startFtpService(port);
         });
 
@@ -156,37 +170,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadPreferences() {
-        binding.editTextUsername.setText(preferences.getUsername());
-        binding.editTextPassword.setText(preferences.getPassword());
-        binding.editTextPort.setText(String.valueOf(preferences.getPort()));
+        // Now handled by SecurityFragment for credentials
         binding.switchAnonymous.setChecked(preferences.isAnonymousEnabled());
         binding.switchSecure.setChecked(preferences.isSecureEnabled());
-    }
-
-    private void savePreferences() {
-        preferences.setUsername(binding.editTextUsername.getText() != null ? binding.editTextUsername.getText().toString().trim() : "lalit");
-        preferences.setPassword(binding.editTextPassword.getText() != null ? binding.editTextPassword.getText().toString() : "lalit");
-        preferences.setPort(parsePort(binding.editTextPort.getText() != null ? binding.editTextPort.getText().toString() : ""));
-        preferences.setAnonymousEnabled(binding.switchAnonymous.isChecked());
-        preferences.setSecureEnabled(binding.switchSecure.isChecked());
-    }
-
-    private int parsePort(String text) {
-        try {
-            return Integer.parseInt(text.trim());
-        } catch (NumberFormatException e) {
-            return -1;
-        }
     }
 
     private void startFtpService(int port) {
         Intent serviceIntent = new Intent(this, FtpServerService.class);
         serviceIntent.setAction(FtpServerService.ACTION_START_SERVER);
         serviceIntent.putExtra(FtpServerService.EXTRA_PORT, port);
-        serviceIntent.putExtra(FtpServerService.EXTRA_ANONYMOUS_ENABLED, binding.switchAnonymous.isChecked());
-        serviceIntent.putExtra(FtpServerService.EXTRA_SECURE_ENABLED, binding.switchSecure.isChecked());
-        serviceIntent.putExtra(FtpServerService.EXTRA_USERNAME, binding.editTextUsername.getText() != null ? binding.editTextUsername.getText().toString() : "lalit");
-        serviceIntent.putExtra(FtpServerService.EXTRA_PASSWORD, binding.editTextPassword.getText() != null ? binding.editTextPassword.getText().toString() : "lalit");
+        serviceIntent.putExtra(FtpServerService.EXTRA_ANONYMOUS_ENABLED, preferences.isAnonymousEnabled());
+        serviceIntent.putExtra(FtpServerService.EXTRA_SECURE_ENABLED, preferences.isSecureEnabled());
+        serviceIntent.putExtra(FtpServerService.EXTRA_USERNAME, preferences.getUsername());
+        serviceIntent.putExtra(FtpServerService.EXTRA_PASSWORD, preferences.getPassword());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ContextCompat.startForegroundService(this, serviceIntent);
         } else {
@@ -212,16 +208,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLocalIp() {
-        String ip = NetworkUtils.getLocalIpAddress();
-        if (TextUtils.isEmpty(ip)) {
-            ip = "--";
-        }
-        viewModel.setIpAddress(ip);
-        int port = parsePort(binding.editTextPort.getText() != null ? binding.editTextPort.getText().toString() : "");
-        if (!NetworkUtils.isValidPort(port)) {
-            port = preferences.getPort();
-        }
-        viewModel.setServerAddress(getString(R.string.ftp_url_template, ip, port));
+        final String localIp = NetworkUtils.getLocalIpAddress();
+        final String currentAddress = TextUtils.isEmpty(localIp) ? "--" : localIp;
+        viewModel.setIpAddress(currentAddress);
+        int port = preferences.getPort();
+        viewModel.setServerAddress(getString(R.string.ftp_url_template, currentAddress, port));
     }
 
     private boolean hasRequiredPermissions() {
@@ -272,17 +263,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_PERMISSIONS) {
-            boolean granted = true;
+            boolean allGranted = true;
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
-                    granted = false;
+                    allGranted = false;
                     break;
                 }
             }
-            if (!granted) {
+            if (!allGranted) {
                 showSnackbar(getString(R.string.error_permission_denied));
             }
         }
@@ -294,6 +285,71 @@ public class MainActivity extends AppCompatActivity {
 
     private void showToast(String message) {
         Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void setupNavigation() {
+        // Initial fragment
+        handleNavigation(R.id.nav_server);
+    }
+
+    private void setupBackNavigation() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag("FILE_BROWSER");
+                if (fragment instanceof FileBrowserFragment) {
+                    if (((FileBrowserFragment) fragment).onBackPressed()) {
+                        return;
+                    }
+                }
+
+                Integer currentNavId = viewModel.getCurrentNavId().getValue();
+                if (currentNavId != null && currentNavId != R.id.nav_server) {
+                    binding.bottomNav.setSelectedItemId(R.id.nav_server);
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void handleNavigation(int id) {
+        if (id == R.id.nav_server) {
+            binding.scrollView.setVisibility(View.VISIBLE);
+            binding.appBarLayout.setVisibility(View.VISIBLE);
+            binding.bottomNav.setVisibility(View.VISIBLE);
+            binding.fragmentContainer.setVisibility(View.GONE);
+            
+            // Remove browser fragment if exists
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag("FILE_BROWSER");
+            if (fragment != null) {
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+        } else if (id == R.id.nav_files) {
+            binding.scrollView.setVisibility(View.GONE);
+            binding.appBarLayout.setVisibility(View.GONE);
+            binding.bottomNav.setVisibility(View.GONE);
+            binding.fragmentContainer.setVisibility(View.VISIBLE);
+            
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                    .replace(R.id.fragmentContainer, new FileBrowserFragment(), "FILE_BROWSER")
+                    .commit();
+        } else if (id == R.id.nav_security) {
+            binding.scrollView.setVisibility(View.GONE);
+            binding.appBarLayout.setVisibility(View.GONE);
+            binding.bottomNav.setVisibility(View.VISIBLE);
+            binding.fragmentContainer.setVisibility(View.VISIBLE);
+            
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                    .replace(R.id.fragmentContainer, new SecurityFragment(), "SECURITY")
+                    .commit();
+        } else {
+            showToast("Feature coming soon!");
+        }
     }
 
     @Override

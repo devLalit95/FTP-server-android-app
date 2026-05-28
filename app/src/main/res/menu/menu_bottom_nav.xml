@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/menu/menu_bottom_nav.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_server"
+        android:icon="@android:drawable/ic_menu_upload"
+        android:title="@string/nav_server" />
+
+    <item
+        android:id="@+id/nav_files"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/nav_files" />
+
+    <item
+        android:id="@+id/nav_users"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="@string/nav_users" />
+
+    <item
+        android:id="@+id/nav_security"
+        android:icon="@android:drawable/ic_lock_lock"
+        android:title="@string/nav_security" />
+
+</menu>

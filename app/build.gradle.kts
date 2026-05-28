@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.core.ktx)

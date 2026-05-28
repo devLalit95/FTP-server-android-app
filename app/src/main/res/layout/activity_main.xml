@@ -413,108 +413,6 @@
             </com.google.android.material.card.MaterialCardView>
 
 
-            <!-- ─── CREDENTIALS CARD ─── -->
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCredentials"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/bg_surface"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/border_subtle"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_credentials"
-                        android:textAppearance="@style/TextAppearance.FTPServer.TitleSmall"
-                        android:textSize="11sp"
-                        android:layout_marginBottom="16dp" />
-
-                    <!-- Username -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/layoutUsername"
-                        style="@style/Widget.FTPServer.TextInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/hint_username"
-                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
-                        app:startIconTint="@color/text_muted">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextUsername"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:inputType="textPersonName"
-                            android:text="@string/default_username"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Password -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/layoutPassword"
-                        style="@style/Widget.FTPServer.TextInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:hint="@string/hint_password"
-                        app:passwordToggleEnabled="true"
-                        app:startIconDrawable="@android:drawable/ic_lock_lock"
-                        app:startIconTint="@color/text_muted"
-                        app:endIconTint="@color/text_muted">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextPassword"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:inputType="textPassword"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Port -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/layoutPort"
-                        style="@style/Widget.FTPServer.TextInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:hint="@string/hint_port"
-                        app:startIconDrawable="@android:drawable/ic_menu_sort_by_size"
-                        app:startIconTint="@color/text_muted"
-                        app:helperText="Range: 1024 – 65535"
-                        app:helperTextTextColor="@color/text_muted">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextPort"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="monospace"
-                            android:inputType="number"
-                            android:text="@string/default_port"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
             <!-- ─── ACTION BUTTONS ─── -->
 
             <!-- Start (primary, full width) -->
@@ -688,6 +586,13 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+
+    <!-- Fragment Container for full-screen fragments (like File Browser) -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <!-- ══════════════════════════════════════
          BOTTOM NAVIGATION BAR

@@ -50,6 +50,13 @@
 
     <style name="Theme.FTPServer" parent="Base.Theme.FTPServer" />
 
+    <!-- ─── Splash Screen Theme ─── -->
+    <style name="Theme.FTPServer.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ftp</item>
+        <item name="windowSplashScreenBackground">@color/bg_base</item>
+        <item name="postSplashScreenTheme">@style/Theme.FTPServer</item>
+    </style>
+
     <!-- ─── Shapes ─── -->
 
     <style name="ShapeAppearance.FTPServer.Small" parent="ShapeAppearance.Material3.SmallComponent">

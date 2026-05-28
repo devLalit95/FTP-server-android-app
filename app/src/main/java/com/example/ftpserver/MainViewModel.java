@@ -16,6 +16,7 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<String> ipAddress = new MutableLiveData<>("--");
     private final MutableLiveData<String> logText = new MutableLiveData<>("");
     private final MutableLiveData<Boolean> busy = new MutableLiveData<>(false);
+    private final MutableLiveData<Integer> currentNavId = new MutableLiveData<>(R.id.nav_server);
 
     public LiveData<Boolean> getServerRunning() {
         return serverRunning;
@@ -71,5 +72,13 @@ public class MainViewModel extends ViewModel {
 
     public void clearLogs() {
         logText.setValue("");
+    }
+
+    public LiveData<Integer> getCurrentNavId() {
+        return currentNavId;
+    }
+
+    public void setCurrentNavId(int id) {
+        currentNavId.setValue(id);
     }
 }
